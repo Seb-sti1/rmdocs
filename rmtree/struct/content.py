@@ -69,7 +69,7 @@ class ContentFile(Content):
             if self.get_version() == 1:
                 if i < len(self.raw["pages"]):
                     page_def = self.raw["pages"][i]
-                    page = Page.from_file(self.src, self.uuid, page_def["id"], page_def)
+                    page = Page.from_file(self.src, self.uuid, page_def, page_def)
 
                 if bg_pdf is not None and i < len(bg_pdf.pages):
                     bg = bg_pdf.pages[i]
