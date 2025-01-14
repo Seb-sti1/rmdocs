@@ -9,10 +9,11 @@ import typing as tp
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter, Transformation
+from pypdf.annotations import FreeText
 
 from rmtree.struct.content import Content, ContentFile
 from rmtree.struct.metadata import Metadata
-from rmtree.struct.page import PageEmpty, PageRM
+from rmtree.struct.page import PageEmpty, PageRM, PageVersion
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +84,22 @@ class Notebook(File):
         super().__init__(metadata, content)
         self.content = content  # fix type hints
 
+    @staticmethod
+    def __add_annotation__(doc: PdfWriter, page_number: int, content: str,
+                           width=400, height=40) -> None:
+        annotation = FreeText(
+            text=content,
+            rect=(0, 0, width, height),
+            font="Arial",
+            italic=True,
+            font_size="20pt",
+            font_color="ffffff",
+            border_color=None,
+            background_color=None,
+        )
+        annotation.flags = 4
+        doc.add_annotation(page_number=page_number, annotation=annotation)
+
     def export(self, output_path: Path):
         fullpath = os.path.join(output_path, replace_invalid_char(self.metadata.get_name()))
         background_pdf_path = os.path.join(self.metadata.src, self.get_uuid() + ".pdf")
@@ -97,7 +114,7 @@ class Notebook(File):
             background_pdf = PdfReader(background_pdf_path) if os.path.exists(background_pdf_path) else None
             output_pdf = PdfWriter()
             for page, background_page in self.content.iterate_pages(background_pdf):
-                if isinstance(page, PageRM):
+                if isinstance(page, PageRM) and page.get_version() == PageVersion.V6:
                     try:
                         # get the svg as a pdf
                         svg_pdf_p, (x_shift, y_shift, w_svg, h_svg) = page.export()
@@ -125,10 +142,27 @@ class Notebook(File):
                         new_page.merge_transformed_page(svg_pdf_p,
                                                         Transformation().translate(x_svg, y_svg))
                     except Exception:
+                        output_pdf.add_blank_page(400, 500)
+                        self.__add_annotation__(output_pdf,
+                                                len(output_pdf.pages) - 1,
+                                                f"An error occurred while exporting this page.\n\n\n"
+                                                f"{traceback.format_exc()}",
+                                                400,
+                                                500)
                         logger.warning(f"Failed to export {page.get_page_uuid()} of {self.get_uuid()}:")
                         traceback.print_exc()
-                elif background_page is not None:
-                    output_pdf.add_page(background_page)
+                else:
+                    if background_page is not None:
+                        output_pdf.add_page(background_page)
+                    else:
+                        output_pdf.add_blank_page(400, 500)
+                    if isinstance(page, PageRM):  # if there is a non v6 page
+                        self.__add_annotation__(output_pdf,
+                                                len(output_pdf.pages) - 1,
+                                                f"This page uses a rm v{page.get_version()}."
+                                                f" It is incompatible with this software.\n"
+                                                f"Please go to this page, draw and remove a stroke in order"
+                                                f" to update to page to v6.")
 
             if len(output_pdf.pages) > 0:
                 output_pdf.write(fullpath + ".pdf")
