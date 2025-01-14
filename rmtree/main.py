@@ -28,13 +28,16 @@ def main(args=None):
     parser.add_argument('dst', type=Path, help='The folder where the files are exported to.',
                         nargs='?')
     parser.add_argument('--verbose', '-v', action='count', default=0, help='Increase verbosity.')
-    parser.add_argument('--dependencies-verbosity', type=int, default=0,
+    parser.add_argument('--dependencies-verbosity', '-dv', type=int, default=0,
                         help='Set verbosity of the dependencies.')
     parser.add_argument('--test-compatibility', '-t', action='store_true', default=False,
                         help='Test if the files from the reMarkable are compatible with this program.')
-    parser.add_argument('--ignore-assertion', '-i', action='store_true', default=False,
+    parser.add_argument('--ignore-assertion', '-ia', action='store_true', default=False,
                         help='If the program should continue despite assertion errors.'
                              'There will be no guarantee the output is correct.')
+    parser.add_argument('--ignore-compatibility', '-ic', action='store_true', default=False,
+                        help='If the program should continue despite compatibility errors.'
+                             'WARNING The output will not be correct.')
 
     args = parser.parse_args(args)
 
@@ -55,7 +58,7 @@ def main(args=None):
 
     if ((not args.test_compatibility)
             and (count_assertion_errors == 0 or args.ignore_assertion)
-            and count_compatibility_errors == 0):
+            and count_compatibility_errors == 0 or args.ignore_compatibility):
         # export all the files
         files = list_files(args.src)
         progress = tqdm(files.items())
