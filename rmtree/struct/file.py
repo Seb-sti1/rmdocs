@@ -118,8 +118,8 @@ class Notebook(File):
                         # get the svg as a pdf
                         svg_pdf_p, (x_shift, y_shift, w_svg, h_svg) = page.export()
                         # get size of the background_page
-                        w_bg = 0 if background_page is None else background_page.mediabox.width
-                        h_bg = 0 if background_page is None else background_page.mediabox.height
+                        w_bg = 0 if background_page is None else background_page.cropbox.width
+                        h_bg = 0 if background_page is None else background_page.cropbox.height
                         # add a blank page that can contains both svg and background pdf
                         width, height = max(w_svg, w_bg), max(h_svg, h_bg)
                         new_page = output_pdf.add_blank_page(width, height)
@@ -161,7 +161,7 @@ class Notebook(File):
                                                 f"This page uses a rm v{page.get_version()}."
                                                 f" It is incompatible with this software.\n"
                                                 f"Please go to this page, draw and remove a stroke in order"
-                                                f" to update to page to v6.")
+                                                f" to update the page to v6.")
 
             if len(output_pdf.pages) > 0:
                 output_pdf.write(fullpath + ".pdf")
