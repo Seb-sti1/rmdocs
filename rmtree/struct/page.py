@@ -58,7 +58,7 @@ class Page:
         return self.page_uuid
 
     def test_assertion(self) -> bool:
-        raise NotImplemented("This is an abstract class")
+        raise NotImplementedError("This is an abstract class")
 
 
 class PageRM(Page):

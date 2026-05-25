@@ -68,7 +68,7 @@ class File:
         :param output_path: A folder where to save the file
         :return:
         """
-        raise NotImplemented("This is an abstract class.")
+        raise NotImplementedError("This is an abstract class.")
 
     def __str__(self):
         return f"{self.metadata.get_name()} ({self.get_uuid()})"
