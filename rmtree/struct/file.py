@@ -7,11 +7,12 @@ import shutil
 import traceback
 import typing as tp
 from pathlib import Path
+from typing import Optional
 
 from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.annotations import FreeText
 
-from rmtree.struct.content import Content, ContentFile
+from rmtree.struct.content import ContentFile, FileType, ContentFolder
 from rmtree.struct.metadata import Metadata
 from rmtree.struct.page import PageEmpty, PageRM, PageVersion
 
@@ -29,15 +30,13 @@ def replace_invalid_char(string: str) -> str:
 class File:
     @staticmethod
     def from_metadata(metadata: Metadata) -> File:
-        content = metadata.get_associated_content()
-        if isinstance(content, ContentFile):
-            return Notebook(metadata, content)
+        if metadata.get_file_type() == FileType.FOLDER:
+            return Folder(metadata)
         else:
-            return Folder(metadata, content)
+            return Notebook(metadata)
 
-    def __init__(self, metadata: Metadata, content: Content):
+    def __init__(self, metadata: Metadata):
         self.metadata = metadata
-        self.content = content
 
     def get_uuid(self):
         return self.metadata.uuid
@@ -80,9 +79,9 @@ class File:
 
 class Notebook(File):
 
-    def __init__(self, metadata: Metadata, content: ContentFile):
-        super().__init__(metadata, content)
-        self.content = content  # fix type hints
+    def __init__(self, metadata: Metadata):
+        super().__init__(metadata)
+        self.content: ContentFile = metadata.get_associated_content()
 
     @staticmethod
     def __add_annotation__(doc: PdfWriter, page_number: int, content: str,
@@ -176,8 +175,9 @@ class Folder(File):
     This a simple folder
     """
 
-    def __init__(self, metadata: Metadata, content: Content):
-        super().__init__(metadata, content)
+    def __init__(self, metadata: Metadata):
+        super().__init__(metadata)
+        self.content: Optional[ContentFolder] = metadata.get_associated_content()
 
     def export(self, output_path: Path):
         fullpath = os.path.join(output_path, self.metadata.get_name())
@@ -198,7 +198,6 @@ def list_files(src: Path) -> tp.Dict[str, File]:
 
     files = {}
     for uuid in uuid_list:
-        if os.path.exists(src.joinpath(uuid + ".metadata")) \
-                and os.path.exists(src.joinpath(uuid + ".content")):
+        if os.path.exists(src.joinpath(uuid + ".metadata")):
             files[uuid] = File.from_metadata(Metadata(src, uuid))
     return files

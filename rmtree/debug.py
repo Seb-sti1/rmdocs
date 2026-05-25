@@ -2,7 +2,7 @@ import os
 import typing as tp
 from pathlib import Path
 
-from rmtree.struct.content import ContentFile
+from rmtree.struct.content import FileType, ContentFile
 from rmtree.struct.file import ID_PATTERN
 from rmtree.struct.metadata import Metadata
 from rmtree.struct.page import PageRM, PageVersion
@@ -98,9 +98,9 @@ def test_assertion(src: Path, custom_print=print) -> tp.Tuple[int, int]:
             continue
 
         # otherwise there should be a metadata and a content
-        if not (exists(uuid + ".metadata") and exists(uuid + ".content")):
+        if not exists(uuid + ".metadata"):
             errors[uuid] = {"type": "assert",
-                            "reason": "Either the metadata or content file is missing."}
+                            "reason": "The metadata is missing."}
             continue
 
         # verify assertion on the metadata file
@@ -110,19 +110,22 @@ def test_assertion(src: Path, custom_print=print) -> tp.Tuple[int, int]:
                             "reason": "The metadata assertion are not verified."}
             continue
 
-        # verify assertion on the content file
         content = metadata.get_associated_content()
-        if isinstance(content, ContentFile) and content.get_version() not in [1, 2]:
+        # .content is optional for folders
+        if metadata.get_file_type() == FileType.DOCUMENT and content is None:
             errors[uuid] = {"name": metadata.get_name(), "type": "compatibility",
-                            "reason": "This software is only compatible with content version 1 and 2."}
-            continue
-        elif not content.test_assertion():
-            errors[uuid] = {"name": metadata.get_name(), "type": "assert",
-                            "reason": "The content assertion are not verified."}
+                            "reason": "The .content is missing."}
             continue
 
-        # check rm file version
+        # verify assertion on the .content
+        if content is not None and not content.test_assertion():
+            errors[uuid] = {"name": metadata.get_name(), "type": "compatibility",
+                            "reason": "The .content is missing."}
+            continue
+
+        # check assertion specific to documents
         if isinstance(content, ContentFile):
+            # check rm file version
             not_compatible_pages: list[tp.Tuple[int, str, PageVersion]] = []
             for n, page in enumerate(content.get_pages()):
                 if isinstance(page, PageRM) and not page.test_assertion():
@@ -132,12 +135,12 @@ def test_assertion(src: Path, custom_print=print) -> tp.Tuple[int, int]:
                 errors[uuid] = {"name": metadata.get_name(), "pages": not_compatible_pages, "type": "compatibility",
                                 "reason": "This software is only compatible with rm file version 6"}
 
-        # [uuid]/ folder only contains rm files
-        if exists(uuid):
-            for filename in os.listdir(os.path.join(src, uuid)):
-                if not (filename.endswith(".rm") or filename.endswith("-metadata.json")):
-                    errors[uuid] = {"name": metadata.get_name(), "type": "assert",
-                                    "reason": "Unknown files in the [uuid]/ folder"}
+            # [uuid]/ folder only contains rm files
+            if exists(uuid):
+                for filename in os.listdir(os.path.join(src, uuid)):
+                    if not (filename.endswith(".rm") or filename.endswith("-metadata.json")):
+                        errors[uuid] = {"name": metadata.get_name(), "type": "assert",
+                                        "reason": "Unknown files in the [uuid]/ folder"}
 
     # print compatibilities errors
     compatibility_errors = {uuid: error for uuid, error in errors.items() if error["type"] == "compatibility"}

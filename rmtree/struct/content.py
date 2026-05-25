@@ -22,7 +22,7 @@ class FileType:
 
 class Content:
 
-    def __init__(self, src: Path, uuid: str, raw):
+    def __init__(self, src: Path, uuid: str, raw: tp.Dict):
         self.src = src
         self.uuid = uuid
         self.raw = raw
@@ -30,9 +30,10 @@ class Content:
     @staticmethod
     def from_file(src: Path, uuid: str, file_type: FileType) -> Optional[Content]:
         path = src.joinpath(uuid + ".content")
-        with open(str(path), "r") as f:
+        if not path.exists():
+            return None
+        with path.open() as f:
             raw = json.load(f)
-
         if file_type == FileType.FOLDER:
             return ContentFolder(src, uuid, raw)
         elif file_type == FileType.DOCUMENT:
