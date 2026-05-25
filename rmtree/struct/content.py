@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import json
-import typing as tp
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Iterator, Tuple, Dict, Literal, Union
 
 from pypdf import PageObject, PdfReader
 
@@ -22,7 +21,7 @@ class FileType:
 
 class Content:
 
-    def __init__(self, src: Path, uuid: str, raw: tp.Dict):
+    def __init__(self, src: Path, uuid: str, raw: Dict):
         self.src = src
         self.uuid = uuid
         self.raw = raw
@@ -40,10 +39,10 @@ class Content:
             return ContentFile(src, uuid, raw)
         return None
 
-    def get_version(self) -> tp.Optional[int]:
+    def get_version(self) -> Optional[int]:
         raise NotImplementedError("This is an abstract class.")
 
-    def test_assertion(self) -> bool:
+    def test_assertion(self) -> Union[Literal[True], str]:
         # if the file is a document, the content file needs to have:
         # - the formatVersion
         # - the pageCount
@@ -53,7 +52,7 @@ class Content:
 
 class ContentFile(Content):
 
-    def __init__(self, src: Path, uuid: str, raw: tp.Dict):
+    def __init__(self, src: Path, uuid: str, raw: Dict):
         super().__init__(src, uuid, raw)
 
     def get_version(self) -> int:
@@ -62,8 +61,7 @@ class ContentFile(Content):
     def get_pages_count(self) -> int:
         return len(self.raw["cPages"]["pages"] if self.get_version() == 2 else self.raw["pages"])
 
-    def iterate_pages(self, bg_pdf: tp.Optional[PdfReader]) -> tp.Iterator[tp.Tuple[tp.Optional[Page],
-    tp.Optional[PageObject]]]:
+    def iterate_pages(self, bg_pdf: Optional[PdfReader]) -> Iterator[Tuple[Optional[Page], Optional[PageObject]]]:
         for i in range(max(self.get_pages_count(), 0 if bg_pdf is None else len(bg_pdf.pages))):
             page = None
             bg = None
@@ -82,7 +80,7 @@ class ContentFile(Content):
                         bg = bg_pdf.pages[page.bg_pdf_page_idx]
             yield page, bg
 
-    def get_pages(self) -> tp.Iterator[Page]:
+    def get_pages(self) -> Iterator[Page]:
         pages_data = self.raw["cPages"]["pages"] if self.get_version() == 2 else self.raw["pages"]
 
         for page_def in pages_data:
@@ -99,10 +97,10 @@ class ContentFile(Content):
 
 
 class ContentFolder(Content):
-    def __init__(self, src: Path, uuid: str, raw: tp.Dict):
+    def __init__(self, src: Path, uuid: str, raw: Dict):
         super().__init__(src, uuid, raw)
 
-    def get_version(self) -> tp.Optional[int]:
+    def get_version(self) -> Optional[int]:
         return None
 
     def test_assertion(self) -> bool:
