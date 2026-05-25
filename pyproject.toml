@@ -3,11 +3,11 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["rmtree", "rmtree.struct"]
+packages = ["rmtree"]
 
 [project]
 name = "rmtree"
-version = "2.0.1"
+version = "2.1.0"
 requires-python = ">=3.10"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -15,11 +15,9 @@ license = { file = "LICENSE" }
 description = "Convert the file tree from the reMarkable tablet to PDFs"
 authors = [{ name = "Seb-sti1", email = "noreply@kerbourch.fr" }]
 dependencies = [
-    "fpdf2",
     "pypdf",
     "cairosvg",
-    "rmc>=0.2.0,<0.3.0",
-    "rmscene>=0.6.1,<0.7.0",
+    "rmscene>=0.8.0, <0.9.0",
     "tqdm",
 ]
 
