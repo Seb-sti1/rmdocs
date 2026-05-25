@@ -88,12 +88,17 @@ class ContentFile(Content):
                 yield Page.from_file(self.src, self.uuid,
                                      page_def if self.get_version() == 1 else page_def["id"], page_def)
 
-    def test_assertion(self) -> bool:
+    def test_assertion(self) -> Union[Literal[True], str]:
         if self.get_version() == 1:
-            return all([p in self.raw for p in ["formatVersion", "pageCount", "pages"]])
+            if not all([p in self.raw for p in ["formatVersion", "pageCount", "pages"]]):
+                return "Missing attributes in .content file."
         elif self.get_version() == 2:
-            return all([p in self.raw for p in ["formatVersion", "pageCount", "cPages"]]) \
-                and "pages" in self.raw["cPages"]
+            if not all([p in self.raw for p in ["formatVersion", "pageCount", "cPages"]]) \
+                and "pages" in self.raw["cPages"]:
+                return "Missing attributes in .content file."
+        else:
+            return "This software is only compatible with content version 1 and 2."
+        return True
 
 
 class ContentFolder(Content):
@@ -103,5 +108,5 @@ class ContentFolder(Content):
     def get_version(self) -> Optional[int]:
         return None
 
-    def test_assertion(self) -> bool:
+    def test_assertion(self) -> Union[Literal[True], str]:
         return True

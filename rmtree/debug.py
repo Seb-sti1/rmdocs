@@ -105,9 +105,10 @@ def test_assertion(src: Path, custom_print=print) -> Tuple[int, int]:
 
         # verify assertion on the metadata file
         metadata = Metadata(src, uuid)
-        if not metadata.test_assertion(uuid_list):
+        r = metadata.test_assertion(uuid_list)
+        if r is not True:
             errors[uuid] = {"type": "assert",
-                            "reason": "The metadata assertion are not verified."}
+                            "reason": r}
             continue
 
         content = metadata.get_associated_content()
@@ -118,10 +119,12 @@ def test_assertion(src: Path, custom_print=print) -> Tuple[int, int]:
             continue
 
         # verify assertion on the .content
-        if content is not None and not content.test_assertion():
-            errors[uuid] = {"name": metadata.get_name(), "type": "compatibility",
-                            "reason": "The .content is missing."}
-            continue
+        if content is not None:
+            r = content.test_assertion()
+            if r is not True:
+                errors[uuid] = {"name": metadata.get_name(), "type": "compatibility",
+                                "reason": r}
+                continue
 
         # check assertion specific to documents
         if isinstance(content, ContentFile):

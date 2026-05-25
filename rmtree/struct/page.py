@@ -5,7 +5,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union, Literal
 
 import cairosvg
 from pypdf import PdfReader, PageObject
@@ -57,7 +57,7 @@ class Page:
     def get_page_uuid(self) -> str:
         return self.page_uuid
 
-    def test_assertion(self) -> bool:
+    def test_assertion(self) -> Union[Literal[True], str]:
         raise NotImplementedError("This is an abstract class")
 
 
@@ -121,13 +121,15 @@ class PageRM(Page):
 
         return svg_pdf.pages[0], (x_shift, y_shift, w, h)
 
-    def test_assertion(self) -> bool:
-        return self.version == PageVersion.V6
+    def test_assertion(self) -> Union[Literal[True], str]:
+        if self.version != PageVersion.V6:
+            return "This software is only compatible with rm file version 6."
+        return True
 
 
 class PageEmpty(Page):
     def __init__(self, src: Path, file_uuid: str, page_uuid: str, definition: Dict):
         super().__init__(src, file_uuid, page_uuid, definition)
 
-    def test_assertion(self) -> bool:
+    def test_assertion(self) -> Union[Literal[True], str]:
         return True
