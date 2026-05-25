@@ -9,13 +9,13 @@ from typing import Dict, Tuple, Union, Literal
 
 import cairosvg
 from pypdf import PdfReader, PageObject
-from rmc.exporters.svg import tree_to_svg, PAGE_WIDTH_PT, PAGE_HEIGHT_PT
 from rmscene import read_tree
+
 import rmtree.templates as templates
+from rmtree.compile.param import CompilerParameters
+from rmtree.compile.svg import SVG
 
 logger = logging.getLogger(__name__)
-
-SVG_VIEWBOX_PATTERN = re.compile(r"^<svg .+ viewBox=\"([\-\d.]+) ([\-\d.]+) ([\-\d.]+) ([\-\d.]+)\">$")
 
 RM_VERSION_HEADER = "reMarkable .lines file, version="
 
@@ -65,6 +65,7 @@ class PageRM(Page):
     def __init__(self, src: Path, file_uuid: str, page_uuid: str, definition: Dict):
         super().__init__(src, file_uuid, page_uuid, definition)
 
+        self.compiler_param = CompilerParameters()
         self.version = self.__compute_version__()
 
     def __compute_version__(self) -> PageVersion:
@@ -93,31 +94,17 @@ class PageRM(Page):
             template = None
 
         # convert the rm file to svg
-        svg = io.StringIO()
+        compiler = SVG(self.compiler_param)
         with open(str(self.path), 'rb') as f:
             tree = read_tree(f)
-            tree_to_svg(tree, svg, template)
-        svg = svg.getvalue()
+            svg, x_shift, y_shift, w, h = compiler.compile_tree(tree, template)
 
-        # convert the svg to a pdf without writing to the disk
-        # use dpi=72 so that the pdf has the same resolution as the svg
+        # convert the svg to a PDF without writing to the disk
+        # use dpi=72 so that the PDF has the same resolution as the svg
         svg_pdf_data = cairosvg.svg2pdf(bytestring=svg.encode('utf-8'), dpi=72)
         svg_pdf_buffer = io.BytesIO(svg_pdf_data)
         svg_pdf = PdfReader(svg_pdf_buffer)
         assert len(svg_pdf.pages) == 1
-
-        # find the shift along x and y axis
-        x_shift, y_shift, w, h = 0, 0, PAGE_WIDTH_PT, PAGE_HEIGHT_PT
-        found = False
-        for line in svg.split("\n"):
-            res = SVG_VIEWBOX_PATTERN.match(line)
-            if res is not None:
-                x_shift, y_shift = float(res.group(1)), float(res.group(2))
-                w, h = float(res.group(3)), float(res.group(4))
-                found = True
-                break
-        if not found:
-            logger.warning(f"Can't find x shift, y shift, width and height for {self.get_page_uuid()}")
 
         return svg_pdf.pages[0], (x_shift, y_shift, w, h)
 
