@@ -41,14 +41,14 @@ class Content:
         return None
 
     def get_version(self) -> tp.Optional[int]:
-        raise NotImplemented("This is an abstract class.")
+        raise NotImplementedError("This is an abstract class.")
 
     def test_assertion(self) -> bool:
         # if the file is a document, the content file needs to have:
         # - the formatVersion
         # - the pageCount
         # - the pages info
-        raise NotImplemented("This is an abstract class")
+        raise NotImplementedError("This is an abstract class")
 
 
 class ContentFile(Content):
