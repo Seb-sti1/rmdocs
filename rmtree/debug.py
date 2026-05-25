@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 from typing import Tuple, Dict
@@ -6,6 +7,8 @@ from rmtree.struct.content import FileType, ContentFile
 from rmtree.struct.file import ID_PATTERN
 from rmtree.struct.metadata import Metadata
 from rmtree.struct.page import PageRM, PageVersion
+
+logger = logging.getLogger(__name__)
 
 """
 Here is a list and partial description of the files in the /home/root/.local/share/remarkable/xochitl/ of the 
@@ -58,25 +61,23 @@ def count_extension(src: Path) -> Tuple[Dict[str, int], Dict[str, int]]:
     return file_extension, folder_extension
 
 
-def test_assertion(src: Path, custom_print=print) -> Tuple[int, int]:
-    custom_print(f"===== Testing compatibility and assertion on {src} =====")
-    custom_print()
-    custom_print("Be aware of the following:")
-    custom_print("\t- Compatibility refers to the constraint that I decided to impose (mainly the\n"
+def test_assertion(src: Path) -> Tuple[bool, bool]:
+    logger.info(f"===== Testing compatibility and assertion on {src} =====\n")
+    logger.info("Be aware of the following:")
+    logger.info("\t- Compatibility refers to the constraint that I decided to impose (mainly the\n"
                  "\t  version constraint on .rm and .content files). Any error regarding this is\n"
                  "\t  considered 'wrong input from the user'/'software limitation' and not a bug.\n"
                  "\t- Assertion refers to the hypothesis made as there is no official API for\n"
                  "\t  the reMarkable file structure. Errors regarding these assertions can be\n"
-                 "\t  considered bugs. Please report them on GitHub with as much information as possible.")
-    custom_print()
+                 "\t  considered bugs. Please report them on GitHub with as much information as possible.\n")
 
     extensions = count_extension(src)
-    custom_print("Extension of detected files:")
-    custom_print("\n".join([f"\t- {ext} "
+    logger.info("Extension of detected files:")
+    logger.info("\n".join([f"\t- {ext} "
                             f"{'' if ext in know_file_extensions else '(unknown, please consider submitting an issue)'}: {c}"
                             for ext, c in extensions[0].items()]))
-    custom_print("Extension of detected folder:")
-    custom_print("\n".join([f"\t- {ext} "
+    logger.info("Extension of detected folder:")
+    logger.info("\n".join([f"\t- {ext} "
                             f"{'' if ext in know_folder_extensions else '(unknown, please consider submitting an issue)'}: {c}"
                             for ext, c in extensions[1].items()]))
 
@@ -148,26 +149,28 @@ def test_assertion(src: Path, custom_print=print) -> Tuple[int, int]:
     # print compatibilities errors
     compatibility_errors = {uuid: error for uuid, error in errors.items() if error["type"] == "compatibility"}
     if len(compatibility_errors) > 0:
-        custom_print()
-        custom_print(
+        logger.info(
             "The following are compatibility errors. This software is explicitly not compatible with those files.\n"
             "You can look at the README.md to find more information:\n"
             "https://github.com/Seb-sti1/rmtree?tab=readme-ov-file#how-to-check-compatibility-and-update-my-files-to-v6.")
         for uuid, error in compatibility_errors.items():
             if "pages" in error:
-                custom_print(
+                logger.info(
                     f"\t- {error['name']} (page n°{', '.join([str(pages[0]) for pages in error['pages']])}) ({uuid}):"
                     f" This software is only compatible with rm file version 6")
             else:
-                custom_print(f"\t- {error['name']} ({uuid}): {error['reason']}")
+                logger.info(f"\t- {error['name']} ({uuid}): {error['reason']}")
 
     # print assertion errors
     assertion_errors = {uuid: error for uuid, error in errors.items() if error["type"] == "assert"}
     if len(assertion_errors) > 0:
-        custom_print()
-        custom_print(
+        logger.info(
             "The following are assertion errors. You can report them at https://github.com/Seb-sti1/rmtree/issues.")
         for uuid, error in assertion_errors.items():
-            custom_print(f"\t- {error['name'] if 'name' in error else 'Unknown name'} ({uuid}): {error['reason']}")
+            logger.info(f"\t- {error['name'] if 'name' in error else 'Unknown name'} ({uuid}): {error['reason']}")
 
-    return len(compatibility_errors), len(assertion_errors)
+    if len(compatibility_errors) > 0:
+        logger.warning(f"{len(compatibility_errors)} detected compatibility errors.")
+    if len(assertion_errors) > 0:
+        logger.warning(f"{len(assertion_errors)} detected assertion errors.")
+    return len(compatibility_errors) == 0, len(assertion_errors) == 0
