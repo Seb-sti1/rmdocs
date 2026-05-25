@@ -4,8 +4,8 @@ import io
 import logging
 import os
 import re
-import typing as tp
 from pathlib import Path
+from typing import Dict, Tuple
 
 import cairosvg
 from pypdf import PdfReader, PageObject
@@ -33,7 +33,7 @@ class Page:
     Represents a page of a notebook
     """
 
-    def __init__(self, src: Path, file_uuid: str, page_uuid: str, definition: tp.Dict):
+    def __init__(self, src: Path, file_uuid: str, page_uuid: str, definition: Dict):
         self.path = src.joinpath(file_uuid, page_uuid + ".rm")
         self.file_uuid = file_uuid
         self.page_uuid = page_uuid
@@ -48,7 +48,7 @@ class Page:
             self.bg_pdf_page_idx = definition["redir"]["value"]
 
     @staticmethod
-    def from_file(src: Path, file_uuid: str, page_uuid: str, definition: tp.Dict) -> Page:
+    def from_file(src: Path, file_uuid: str, page_uuid: str, definition: Dict) -> Page:
         if src.joinpath(file_uuid, page_uuid + ".rm").exists():
             return PageRM(src, file_uuid, page_uuid, definition)
         else:
@@ -62,7 +62,7 @@ class Page:
 
 
 class PageRM(Page):
-    def __init__(self, src: Path, file_uuid: str, page_uuid: str, definition: tp.Dict):
+    def __init__(self, src: Path, file_uuid: str, page_uuid: str, definition: Dict):
         super().__init__(src, file_uuid, page_uuid, definition)
 
         self.version = self.__compute_version__()
@@ -79,7 +79,7 @@ class PageRM(Page):
     def get_version(self) -> PageVersion:
         return self.version
 
-    def export(self) -> (PageObject, (float, float, float, float)):
+    def export(self) -> Tuple[PageObject, Tuple[float, float, float, float]]:
         """
         Use rmc to convert a rm binary file to a svg and then to a pdf
 
@@ -126,7 +126,7 @@ class PageRM(Page):
 
 
 class PageEmpty(Page):
-    def __init__(self, src: Path = None, file_uuid: str = None, page_uuid: str = None, definition: tp.Dict = None):
+    def __init__(self, src: Path, file_uuid: str, page_uuid: str, definition: Dict):
         super().__init__(src, file_uuid, page_uuid, definition)
 
     def test_assertion(self) -> bool:
