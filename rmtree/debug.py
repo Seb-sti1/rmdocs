@@ -1,6 +1,6 @@
 import os
-import typing as tp
 from pathlib import Path
+from typing import Tuple, Dict
 
 from rmtree.struct.content import FileType, ContentFile
 from rmtree.struct.file import ID_PATTERN
@@ -29,7 +29,7 @@ know_file_extensions = ["tombstone", "local", "metadata", "content", "pagedata",
 know_folder_extensions = ["thumbnails", "highlights", "textconversion", "RM_FOLDER"]
 
 
-def count_extension(src: Path) -> tp.Tuple[tp.Dict[str, int], tp.Dict[str, int]]:
+def count_extension(src: Path) -> Tuple[Dict[str, int], Dict[str, int]]:
     """
     Count the number of files of each extension in the `src` folder
     :param src: the source folder
@@ -58,7 +58,7 @@ def count_extension(src: Path) -> tp.Tuple[tp.Dict[str, int], tp.Dict[str, int]]
     return file_extension, folder_extension
 
 
-def test_assertion(src: Path, custom_print=print) -> tp.Tuple[int, int]:
+def test_assertion(src: Path, custom_print=print) -> Tuple[int, int]:
     custom_print(f"===== Testing compatibility and assertion on {src} =====")
     custom_print()
     custom_print("Be aware of the following:")
@@ -126,7 +126,7 @@ def test_assertion(src: Path, custom_print=print) -> tp.Tuple[int, int]:
         # check assertion specific to documents
         if isinstance(content, ContentFile):
             # check rm file version
-            not_compatible_pages: list[tp.Tuple[int, str, PageVersion]] = []
+            not_compatible_pages: list[Tuple[int, str, PageVersion]] = []
             for n, page in enumerate(content.get_pages()):
                 if isinstance(page, PageRM) and not page.test_assertion():
                     not_compatible_pages.append((n + 1, page.page_uuid, page.get_version()))
