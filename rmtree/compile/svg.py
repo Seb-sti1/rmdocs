@@ -179,6 +179,12 @@ class SVG(Compiler):
         # end stroke
         output.write('" />\n')
 
+    @staticmethod
+    def escape_svg_text(s: str) -> str:
+        return (str(s).strip().replace('&', '&amp;')
+                .replace('<', '&lt;')
+                .replace('>', '&gt;'))
+
     def draw_text(self, text: si.Text, output):
         output.write('\t\t<g class="root-text" style="display:inline">')
 
@@ -211,7 +217,7 @@ class SVG(Compiler):
                 if logger.root.level == logging.DEBUG:
                     output.write(f'\t\t\t<!-- Text line char_id: {p.start_id} -->\n')
                 output.write(f'\t\t\t<text x="{self.scale(xpos)}" y="{self.scale(ypos)}"'
-                             f' class="{cls}">{str(p).strip()}</text>\n')
+                             f' class="{cls}">{self.escape_svg_text(str(p))}</text>\n')
         output.write('\t\t</g>\n')
 
     def compile_tree(self, tree: SceneTree, include_template: Optional[Path] = None) -> Tuple[str,

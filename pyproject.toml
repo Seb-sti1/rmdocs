@@ -7,7 +7,7 @@ packages = ["rmtree"]
 
 [project]
 name = "rmtree"
-version = "2.1.0"
+version = "2.1.1"
 requires-python = ">=3.10"
 readme = "README.md"
 license = { file = "LICENSE" }
