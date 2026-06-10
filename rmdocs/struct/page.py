@@ -11,9 +11,9 @@ import cairosvg
 from pypdf import PdfReader, PageObject
 from rmscene import read_tree
 
-import rmtree.templates as templates
-from rmtree.compile.param import CompilerParameters
-from rmtree.compile.svg import SVG
+import rmdocs.templates as templates
+from rmdocs.compile.param import CompilerParameters
+from rmdocs.compile.svg import SVG
 
 logger = logging.getLogger(__name__)
 

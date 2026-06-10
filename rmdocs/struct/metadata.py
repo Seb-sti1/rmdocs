@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Optional, Union, Literal
 
-from rmtree.struct.content import Content, FileType
+from rmdocs.struct.content import Content, FileType
 
 
 class Metadata:

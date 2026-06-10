@@ -1,4 +1,4 @@
-rmtree
+rmdocs
 ===
 
 A command line tool to convert the files in `/home/root/.local/share/remarkable/xochitl/` of
@@ -32,7 +32,7 @@ See the [official pipx documentation](https://pipx.pypa.io/stable/installation/)
 to install pipx.
 
 ```sh
-pipx install ./rmtree.whl
+pipx install ./rmdocs.whl
 ```
 
 ### Using venv
@@ -40,10 +40,10 @@ pipx install ./rmtree.whl
 ```sh
 python3.11 -m venv .venv  # create a venv 
 source .venv/bin/activate  # source the venv
-pip install ./rmtree.whl
+pip install ./rmdocs.whl
 ```
 
-_Note: in the following instead of `rmtree`, you should use `python -m rmtree` to start the package._
+_Note: in the following instead of `rmdocs`, you should use `python -m rmdocs` to start the package._
 
 ## How to use?
 
@@ -52,7 +52,7 @@ After installing, it is intended to be used with the following commands:
 ```sh
 # replace [ip] by the ip of the remarkable. 
 rsync -r --delete --progress root@[ip]:/home/root/.local/share/remarkable/xochitl/ rm_folder/
-rmtree ./rm_folder ./exported_file_destination
+rmdocs ./rm_folder ./exported_file_destination
 ```
 
 _If you have assertion errors, you can ignore them using the `--ignore-assertion` option but
@@ -63,7 +63,7 @@ For more information or compatibility errors see
 ## How to check compatibility and update my files to v6?
 
 You can test the program for compatibility and assertion errors using
-`rmtree ./rm_folder --test-compatibility`. It will output the detected compatibility
+`rmdocs ./rm_folder --test-compatibility`. It will output the detected compatibility
 and assertion errors.
 
 - Compatibility refers to the constraint that I decided to impose (mainly the
@@ -80,7 +80,7 @@ Compatibility error regarding the `.rm` files version will be listed as shown be
 ```
 The following are compatibility errors. This software is explicitly not compatible with those files.
 You can look at the README.md to find more information:
-https://github.com/Seb-sti1/rmtree?tab=readme-ov-file#how-to-check-compatibility-and-update-my-files-to-v6.
+https://github.com/Seb-sti1/rmdocs?tab=readme-ov-file#how-to-check-compatibility-and-update-my-files-to-v6.
 	- Notes (page n°1, 2) (25a92754-ea08-467a-a386-5e169c804c96): This software is only compatible with rm file version 6
 	- Notebook (page n°1, 2, 3, 4, 5) (fb90bd3d-62d2-46f6-a7e3-aa098c1938f2): This software is only compatible with rm file version 6
 ```
@@ -93,7 +93,7 @@ reMarkable updates the page to v6.**
 ## Major known issues
 
 - [Background template aren't exactly aligned](https://github.com/Seb-sti1/rmc/issues/4)
-- [Missing background templates](https://github.com/Seb-sti1/rmtree/issues/4)
+- [Missing background templates](https://github.com/Seb-sti1/rmdocs/issues/4)
   (`P Lines small`,  `P Grid medium`, `P Grid large`, `P Lines medium`, `P Checklist`)
 
 ## Contributions

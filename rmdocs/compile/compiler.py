@@ -4,7 +4,7 @@ from typing import Optional, Any
 
 from rmscene import SceneTree
 
-from rmtree.compile.param import CompilerParameters
+from rmdocs.compile.param import CompilerParameters
 
 logger = logging.getLogger(__name__)
 

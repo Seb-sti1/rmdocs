@@ -12,9 +12,9 @@ from typing import Optional
 from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.annotations import FreeText
 
-from rmtree.struct.content import ContentFile, FileType, ContentFolder
-from rmtree.struct.metadata import Metadata
-from rmtree.struct.page import PageEmpty, PageRM, PageVersion
+from rmdocs.struct.content import ContentFile, FileType, ContentFolder
+from rmdocs.struct.metadata import Metadata
+from rmdocs.struct.page import PageEmpty, PageRM, PageVersion
 
 logger = logging.getLogger(__name__)
 

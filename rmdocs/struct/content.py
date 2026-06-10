@@ -6,7 +6,7 @@ from typing import Optional, Iterator, Tuple, Dict, Literal, Union
 
 from pypdf import PageObject, PdfReader
 
-from rmtree.struct.page import Page
+from rmdocs.struct.page import Page
 
 
 class FileType:

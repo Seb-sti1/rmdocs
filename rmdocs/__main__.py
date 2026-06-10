@@ -4,15 +4,15 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from rmtree.debug import test_assertion
-from rmtree.logger import setup_logging
-from rmtree.struct.file import list_files
+from rmdocs.debug import test_assertion
+from rmdocs.logger import setup_logging
+from rmdocs.struct.file import list_files
 
 logger = logging.getLogger(__name__)
 
 
 def main(args=None):
-    parser = argparse.ArgumentParser("rmtree", description="Process the file tree of the reMarkable tablet.")
+    parser = argparse.ArgumentParser("rmdocs", description="Process the file tree of the reMarkable tablet.")
     parser.add_argument("src", type=Path, help="The source folder.")
     parser.add_argument("dst", type=Path, nargs="?", help="The folder where the files are exported to.")
     parser.add_argument("--debug", "-d", action="store_true", help="Set all loggers to DEBUG (including rmscene).")
