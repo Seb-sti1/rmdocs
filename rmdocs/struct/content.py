@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Optional, Iterator, Tuple, Dict, Literal, Union
 
 from pypdf import PageObject, PdfReader
 
+from rmdocs.io import AbstractPath
 from rmdocs.struct.page import Page
 
 
@@ -21,14 +21,14 @@ class FileType:
 
 class Content:
 
-    def __init__(self, src: Path, uuid: str, raw: Dict):
+    def __init__(self, src: AbstractPath, uuid: str, raw: Dict):
         self.src = src
         self.uuid = uuid
         self.raw = raw
 
     @staticmethod
-    def from_file(src: Path, uuid: str, file_type: FileType) -> Optional[Content]:
-        path = src.joinpath(uuid + ".content")
+    def from_file(src: AbstractPath, uuid: str, file_type: FileType) -> Optional[Content]:
+        path = src.join(uuid + ".content")
         if not path.exists():
             return None
         with path.open() as f:
@@ -52,7 +52,7 @@ class Content:
 
 class ContentFile(Content):
 
-    def __init__(self, src: Path, uuid: str, raw: Dict):
+    def __init__(self, src: AbstractPath, uuid: str, raw: Dict):
         super().__init__(src, uuid, raw)
 
     def get_version(self) -> int:
@@ -102,7 +102,7 @@ class ContentFile(Content):
 
 
 class ContentFolder(Content):
-    def __init__(self, src: Path, uuid: str, raw: Dict):
+    def __init__(self, src: AbstractPath, uuid: str, raw: Dict):
         super().__init__(src, uuid, raw)
 
     def get_version(self) -> Optional[int]:

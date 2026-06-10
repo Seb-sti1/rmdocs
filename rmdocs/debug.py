@@ -1,5 +1,6 @@
 import logging
 import os
+from enum import Enum, auto
 from pathlib import Path
 from typing import Tuple, Dict
 
@@ -9,6 +10,15 @@ from rmdocs.struct.metadata import Metadata
 from rmdocs.struct.page import PageRM, PageVersion
 
 logger = logging.getLogger(__name__)
+
+
+class ExportType(Enum):
+    UNKNOWN = auto()
+    RM = auto()
+    RMDOC = auto()
+    RM_FOLDER = auto()
+    RMDOC_FOLDER = auto()
+    XOCHITL_FOLDER = auto()
 
 """
 Here is a list and partial description of the files in the /home/root/.local/share/remarkable/xochitl/ of the 
@@ -106,7 +116,7 @@ def test_assertion(src: Path) -> Tuple[bool, bool]:
 
         # verify assertion on the metadata file
         metadata = Metadata(src, uuid)
-        r = metadata.test_assertion(uuid_list)
+        r = metadata.test_assertion(uuid_list)   # FIXME this checks the parents
         if r is not True:
             errors[uuid] = {"type": "assert",
                             "reason": r}
@@ -115,7 +125,7 @@ def test_assertion(src: Path) -> Tuple[bool, bool]:
         content = metadata.get_associated_content()
         # .content is optional for folders
         if metadata.get_file_type() == FileType.DOCUMENT and content is None:
-            errors[uuid] = {"name": metadata.get_name(), "type": "compatibility",
+            errors[uuid] = {"name": metadata.get_name(), "type": "assert",
                             "reason": "The .content is missing."}
             continue
 
@@ -123,7 +133,7 @@ def test_assertion(src: Path) -> Tuple[bool, bool]:
         if content is not None:
             r = content.test_assertion()
             if r is not True:
-                errors[uuid] = {"name": metadata.get_name(), "type": "compatibility",
+                errors[uuid] = {"name": metadata.get_name(), "type": "compatibility",  # FIXME there is a mix of compatibility and assertion
                                 "reason": r}
                 continue
 

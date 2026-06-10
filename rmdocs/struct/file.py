@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import os
 import re
-import shutil
 import traceback
 import typing as tp
 from pathlib import Path
@@ -12,6 +11,7 @@ from typing import Optional
 from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.annotations import FreeText
 
+from rmdocs.io import AbstractPath
 from rmdocs.struct.content import ContentFile, FileType, ContentFolder
 from rmdocs.struct.metadata import Metadata
 from rmdocs.struct.page import PageEmpty, PageRM, PageVersion
@@ -101,16 +101,16 @@ class Notebook(File):
 
     def export(self, output_path: Path):
         fullpath = os.path.join(output_path, replace_invalid_char(self.metadata.get_name()))
-        background_pdf_path = os.path.join(self.metadata.src, self.get_uuid() + ".pdf")
+        background_pdf_path = self.metadata.src.join(self.get_uuid() + ".pdf")
 
         # create the folder tree (if needed)
         os.makedirs(output_path, exist_ok=True)
 
         # this is only a pdf
         if all([isinstance(page, PageEmpty) for page in self.content.get_pages()]):
-            shutil.copyfile(background_pdf_path, fullpath + ".pdf")
+            background_pdf_path.copy(fullpath + ".pdf")
         else:
-            background_pdf = PdfReader(background_pdf_path) if os.path.exists(background_pdf_path) else None
+            background_pdf = PdfReader(background_pdf_path.open('rb')) if background_pdf_path.exists() else None
             output_pdf = PdfWriter()
             for page, background_page in self.content.iterate_pages(background_pdf):
                 if isinstance(page, PageRM) and page.get_version() == PageVersion.V6:
@@ -186,18 +186,18 @@ class Folder(File):
         os.makedirs(fullpath, exist_ok=True)
 
 
-def list_files(src: Path) -> tp.Dict[str, File]:
+def list_files(src: AbstractPath) -> tp.Dict[str, File]:
     """
     List the reMarkable file from the src folder.
 
     :param src: The source folder
     :return: A dict of uuid -> files
     """
-    uuid_list = list(set([ID_PATTERN.fullmatch(f).group(1) for f in os.listdir(src)
-                          if ID_PATTERN.fullmatch(f) is not None]))
+    uuid_list = list(set([ID_PATTERN.fullmatch(f.name()).group(1) for f in src.listdir()
+                          if ID_PATTERN.fullmatch(f.name()) is not None]))
 
     files = {}
     for uuid in uuid_list:
-        if os.path.exists(src.joinpath(uuid + ".metadata")):
+        if src.join(uuid + ".metadata").exists():
             files[uuid] = File.from_metadata(Metadata(src, uuid))
     return files
