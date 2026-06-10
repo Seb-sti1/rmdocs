@@ -1,18 +1,17 @@
 import json
-from pathlib import Path
 from typing import Optional, Union, Literal
 
+from rmdocs.io import AbstractPath
 from rmdocs.struct.content import Content, FileType
 
 
 class Metadata:
-    def __init__(self, src: Path, uuid: str):
+    def __init__(self, src: AbstractPath, uuid: str):
         self.src = src
         self.uuid = uuid
-        path = src.joinpath(uuid + ".metadata")
 
         # read file
-        f = open(str(path), "r")
+        f = src.join(uuid + ".metadata").open("r")
         self.raw = json.load(f)
         f.close()
 

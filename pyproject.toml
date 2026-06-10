@@ -7,7 +7,7 @@ packages = ["rmdocs", "rmdocs.compile", "rmdocs.struct"]
 
 [project]
 name = "rmdocs"
-version = "3.0.1"
+version = "3.2.0"
 requires-python = ">=3.10"
 readme = "README.md"
 license = { file = "LICENSE" }
