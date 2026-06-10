@@ -3,11 +3,11 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["rmdocs"]
+packages = ["rmdocs", "rmdocs.compile", "rmdocs.struct"]
 
 [project]
 name = "rmdocs"
-version = "3.0.0"
+version = "3.0.1"
 requires-python = ">=3.10"
 readme = "README.md"
 license = { file = "LICENSE" }
