@@ -3,10 +3,10 @@ import os
 from pathlib import Path
 from typing import Tuple, Dict
 
-from rmtree.struct.content import FileType, ContentFile
-from rmtree.struct.file import ID_PATTERN
-from rmtree.struct.metadata import Metadata
-from rmtree.struct.page import PageRM, PageVersion
+from rmdocs.struct.content import FileType, ContentFile
+from rmdocs.struct.file import ID_PATTERN
+from rmdocs.struct.metadata import Metadata
+from rmdocs.struct.page import PageRM, PageVersion
 
 logger = logging.getLogger(__name__)
 
@@ -152,7 +152,7 @@ def test_assertion(src: Path) -> Tuple[bool, bool]:
         logger.info(
             "The following are compatibility errors. This software is explicitly not compatible with those files.\n"
             "You can look at the README.md to find more information:\n"
-            "https://github.com/Seb-sti1/rmtree?tab=readme-ov-file#how-to-check-compatibility-and-update-my-files-to-v6.")
+            "https://github.com/Seb-sti1/rmdocs?tab=readme-ov-file#how-to-check-compatibility-and-update-my-files-to-v6.")
         for uuid, error in compatibility_errors.items():
             if "pages" in error:
                 logger.info(
@@ -165,7 +165,7 @@ def test_assertion(src: Path) -> Tuple[bool, bool]:
     assertion_errors = {uuid: error for uuid, error in errors.items() if error["type"] == "assert"}
     if len(assertion_errors) > 0:
         logger.info(
-            "The following are assertion errors. You can report them at https://github.com/Seb-sti1/rmtree/issues.")
+            "The following are assertion errors. You can report them at https://github.com/Seb-sti1/rmdocs/issues.")
         for uuid, error in assertion_errors.items():
             logger.info(f"\t- {error['name'] if 'name' in error else 'Unknown name'} ({uuid}): {error['reason']}")
 

@@ -16,9 +16,9 @@ from rmscene import SceneTree, CrdtId
 from rmscene import scene_items as si
 from rmscene.text import TextDocument
 
-from rmtree.compile.brush import lookup_pen_color, Pen
-from rmtree.compile.compiler import Compiler
-from rmtree.compile.param import CompilerParameters
+from rmdocs.compile.brush import lookup_pen_color, Pen
+from rmdocs.compile.compiler import Compiler
+from rmdocs.compile.param import CompilerParameters
 
 logger = logging.getLogger(__name__)
 

@@ -1,1 +1,1 @@
-include rmtree/templates/*.svg
+include rmdocs/templates/*.svg

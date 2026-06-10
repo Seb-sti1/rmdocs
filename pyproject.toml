@@ -3,11 +3,11 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["rmtree"]
+packages = ["rmdocs"]
 
 [project]
-name = "rmtree"
-version = "2.1.1"
+name = "rmdocs"
+version = "3.0.0"
 requires-python = ">=3.10"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -23,4 +23,4 @@ dependencies = [
 
 
 [project.scripts]
-rmtree = "rmtree.__main__:main"
+rmdocs = "rmdocs.__main__:main"
