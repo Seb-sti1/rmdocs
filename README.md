@@ -1,101 +1,54 @@
 rmdocs
 ===
 
-A command line tool to convert the files in `/home/root/.local/share/remarkable/xochitl/` of
-the [reMarkable 2](https://remarkable.com/) to PDFs.
+A cli tool to convert .rm, .rmdoc and the `xochitl` folder of the [reMarkable 2](https://remarkable.com/) to PDFs.
+It aims to reproduce reMarkable 2 output as faithfully as possible.
 
-**It is only compatible with `.rm` version 6
-and `.content` version 1 and 2.**
-See [this section](#how-to-check-compatibility-and-update-my-files-to-v6) to verify compatibility.
+> [!IMPORTANT]
+> It is **only** compatible with `.rm` version 6.
+> See [below](#Compatibility)
 
-It uses [rmc](https://github.com/ricklupton/rmc) (which depends on [rmscene](https://github.com/ricklupton/rmscene)) to
-render the remarkable files to svg, converts them to pdf and then merges them together with, if necessary,
-the background pdf. _Currently, [Seb-sti1/rmc](https://github.com/Seb-sti1/rmc/tree/dev) is used because it
-uses [rmscene](https://github.com/ricklupton/rmscene) v0.5.0 instead of v0.2.0._
+> [!CAUTION]
+> I still consider this in early development.
 
-_Please before submitting an issue check the [known issues](#major-known-issues) section and the already existing
-issues._
+## Usage
 
-## How to install?
+- Convert a single `.rm` file using `rmdocs my_page.rm [destination folder]`. `[destination folder]` defaults to
+  current folder.
+- Convert a single `.rmdoc` file using `rmdocs my_document.rmdoc [destination folder]`. `[destination folder]` defaults
+  to current folder.
+- Convert a folder containing a collection of `.rm` or `.rmdoc` (can't be mixed) using `rmdocs [source folder] 
+[destination folder]`. `[destination folder]` is required.
+- Convert the `xochitl` folder at `/home/root/.local/share/remarkable/xochitl/` on the remarkable using `rmdocs [source folder] 
+[destination folder]`. `[destination folder]` is required.
 
-Start by installing the dependency:
+If you have compatibility or assertions issues, please refer to [below](#Compatibility).
 
-```sh
-apt install libcairo2
-```
+## Installation
 
-Then download the `.whl` from the last release.
+1. Install [pipx](https://pipx.pypa.io/stable/how-to/install-pipx/)
+2. Install `libcairo2`. For instance, on debian based system use `apt install libcairo2`.
+3. Install `rmdocs` via `pipx install rmdocs`
 
-### Using pipx (recommended)
+> [!NOTE]  
+> Alternatively, you can use regular venv.
 
-See the [official pipx documentation](https://pipx.pypa.io/stable/installation/) on how
-to install pipx.
+## Compatibility
 
-```sh
-pipx install ./rmdocs.whl
-```
+This software is only compatible with page version 6, and I do not plan on making it support other page version. For
+non-compatible pages a warning text will be shown instead of your strokes. **Going to each of these pages individually
+and drawing (even if removing afterward) makes the reMarkable updates the page to v6.**
 
-### Using venv
+Additionally, as there is no official API for reMarkable file structure, many assertion are made based on the files
+available while developing this software. The output of the software will show them as `AssertionException`. Please 
+consider opening an issue when you have such errors.
 
-```sh
-python3.11 -m venv .venv  # create a venv 
-source .venv/bin/activate  # source the venv
-pip install ./rmdocs.whl
-```
+## Acknowledgment, contributions and license
 
-_Note: in the following instead of `rmdocs`, you should use `python -m rmdocs` to start the package._
+This uses [rmscene](https://github.com/ricklupton/rmscene), and part of svg creation is based
+of [rmc](https://github.com/ricklupton/rmc).
 
-## How to use?
+This software is mainly released under the MIT license. Certains files (from rmc) regarding the svg creation are under
+LGPL.
 
-After installing, it is intended to be used with the following commands:
-
-```sh
-# replace [ip] by the ip of the remarkable. 
-rsync -r --delete --progress root@[ip]:/home/root/.local/share/remarkable/xochitl/ rm_folder/
-rmdocs ./rm_folder ./exported_file_destination
-```
-
-_If you have assertion errors, you can ignore them using the `--ignore-assertion` option but
-there is a high chance that the output will not be correct.
-For more information or compatibility errors see
-[the next section](#how-to-check-compatibility-and-update-my-files-to-v6)._
-
-## How to check compatibility and update my files to v6?
-
-You can test the program for compatibility and assertion errors using
-`rmdocs ./rm_folder --test-compatibility`. It will output the detected compatibility
-and assertion errors.
-
-- Compatibility refers to the constraint that I decided to impose (mainly the
-  version constraint on .rm and .content files). Any error regarding this is
-  considered 'wrong input from the user'/'software limitation' and not a bug.
-- Assertion refers to the hypothesis made as there is no official API for
-  the reMarkable file structure. Errors regarding these assertions can be
-  considered bugs. Please report them on GitHub with as much information as possible.
-
-### Update rm files to v6
-
-Compatibility error regarding the `.rm` files version will be listed as shown below:
-
-```
-The following are compatibility errors. This software is explicitly not compatible with those files.
-You can look at the README.md to find more information:
-https://github.com/Seb-sti1/rmdocs?tab=readme-ov-file#how-to-check-compatibility-and-update-my-files-to-v6.
-	- Notes (page n°1, 2) (25a92754-ea08-467a-a386-5e169c804c96): This software is only compatible with rm file version 6
-	- Notebook (page n°1, 2, 3, 4, 5) (fb90bd3d-62d2-46f6-a7e3-aa098c1938f2): This software is only compatible with rm file version 6
-```
-
-This indicates that `Notes` page number 1 and 2 and `Notebook` page number 1, 2, 3, 4 and 5 are not using
-`.rm` file v6.
-**It appears that going to each page individually and drawing (even if removing afterward) makes the
-reMarkable updates the page to v6.**
-
-## Major known issues
-
-- [Background template aren't exactly aligned](https://github.com/Seb-sti1/rmc/issues/4)
-- [Missing background templates](https://github.com/Seb-sti1/rmdocs/issues/4)
-  (`P Lines small`,  `P Grid medium`, `P Grid large`, `P Lines medium`, `P Checklist`)
-
-## Contributions
-
-All contributions are welcomed :).
+Contributions are welcomed :).
