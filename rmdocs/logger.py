@@ -20,12 +20,9 @@ class ColorFormatter(logging.Formatter):
         return f"{prefix}{color}{record.getMessage()}{self.RESET}"
 
 
-def setup_logging(debug: bool, test_compatibility: bool) -> None:
+def setup_logging(debug: bool) -> None:
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(ColorFormatter())
     logging.basicConfig(handlers=[handler], level=logging.DEBUG if debug else logging.INFO)
     logging.getLogger("rmdocs").setLevel(logging.DEBUG if debug else logging.INFO)
-    logging.getLogger("rmdocs.debug").setLevel(logging.DEBUG if debug else
-                                               logging.INFO if test_compatibility else
-                                               logging.WARNING)
     logging.getLogger("rmscene").setLevel(logging.DEBUG if debug else logging.CRITICAL)
