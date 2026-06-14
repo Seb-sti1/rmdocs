@@ -1,8 +1,9 @@
-# these are the dev dependencies
+# dev
 setuptools
 build
 
+# prod
 pypdf
 cairosvg
-tqdm
+rich
 rmscene>=0.8.0, <0.9.0
