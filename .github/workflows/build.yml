@@ -2,7 +2,7 @@ name: Build and Test
 
 on:
   push:
-    branches: ["master"]
+    branches: [ "master" ]
   pull_request:
 
 jobs:
@@ -26,20 +26,19 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 3
-
+  
   test-pipx:
     name: Test wheel with pipx
-    needs: [build]
+    needs: [ build ]
     strategy:
       matrix:
-        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
         os: [ ubuntu-22.04, ubuntu-24.04, ubuntu-latest ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+      - name: Show Python version
+        run: python3 --version
       - name: Install pipx
         run: |
           sudo apt update && sudo apt install pipx
@@ -52,25 +51,27 @@ jobs:
         run: |
           pipx install ./dist/rmdocs-*-py3-none-any.whl
           rmdocs -h
+  
+  pytest:
+    name: Run pytest
+    strategy:
+      matrix:
+        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run tests
+        run: python -m pytest
 
-#  pytest:
-#    name: Run pytest
-#    strategy:
-#      matrix:
-#        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: actions/setup-python@v5
-#        with:
-#          python-version: ${{ matrix.python-version }}
-#      - name: Install dependencies
-#        run: |
-#          python -m pip install --upgrade pip
-#          pip install -r requirements.txt pytest
-#      - name: Run tests
-#        run: pytest
-#
 #  visual-test:
 #    name: Visual PDF comparison
 #    strategy:

@@ -63,6 +63,14 @@ class LocalPath(AbstractPath):
     def copy(self, dst: str) -> None:
         shutil.copy2(self.path, dst)
 
+    def __eq__(self, other):
+        if not isinstance(other, ZipPath):
+            return NotImplemented
+        return self.path == other.path
+
+    def __hash__(self):
+        return hash(self.path)
+
 
 class ZipPath(AbstractPath):
     """For file inside a zip."""
@@ -105,3 +113,11 @@ class ZipPath(AbstractPath):
     def copy(self, dst: str) -> None:
         with self.open("rb") as src, open(dst, "wb") as out:
             shutil.copyfileobj(src, out)
+
+    def __eq__(self, other):
+        if not isinstance(other, ZipPath):
+            return NotImplemented
+        return self.path == other.path
+
+    def __hash__(self):
+        return hash(self.path)
