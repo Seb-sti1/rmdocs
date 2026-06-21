@@ -58,7 +58,7 @@ class RMPage:
     file_uuid: str
     page_uuid: str
     template: Optional[str]
-    bg_pdf_page_idx: int
+    bg_pdf_page_idx: Optional[int]
     version: Optional[PageVersion]  # None if .rm file does not exist
 
 

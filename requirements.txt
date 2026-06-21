@@ -1,6 +1,8 @@
 # dev
 setuptools
 build
+pytest
+coverage
 
 # prod
 pypdf
