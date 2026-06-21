@@ -141,9 +141,10 @@ def parse_files_metadata(src: AbstractPath) -> Iterator[File]:
                 parent_uuid = metadata_raw["parent"]
                 if "type" not in metadata_raw:
                     raise MissingAttribute("type", "metadata")
-                filetype = FileType(metadata_raw["type"])
-                if filetype not in [FileType.DOCUMENT, FileType.COLLECTION]:
-                    raise UnknownValue(filetype, 'type')
+                try:
+                    filetype = FileType(metadata_raw["type"])
+                except ValueError:
+                    raise UnknownValue(metadata_raw["type"], "type")
                 if "visibleName" not in metadata_raw:
                     raise MissingAttribute("visibleName", "metadata")
                 name = metadata_raw["visibleName"]
